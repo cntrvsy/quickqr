@@ -2,8 +2,12 @@
   import QRCode from '@castlenine/svelte-qrcode';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
+  import { buttonVariants } from "$lib/components/ui/button";
+  import { Button } from "$lib/components/ui/button";
+  import * as Card from "$lib/components/ui/card";
+  import { toast } from "svelte-sonner";
 
-  let link = $page.url.searchParams.get('data');
+  let link = $page.url.searchParams.get('url');
   
 
   if (!link) {
@@ -15,33 +19,44 @@
   const handleDownloadUrlGenerated = (url = '') => {
     downloadUrl = url;
   };
+  const handleQrCodeGenerationFailed = () => {
+    toast.error("QR Code Generation Failed", {
+          description: "word count too large for the QR code Format",
+        });
+  };
 
 </script>
   
-<section>
-  <div class="container mx-auto flex px-5 py-2 items-center justify-center flex-col">
+<section class="flex items-center justify-center h-screen text-center w-full">
+  <div class="container flex flex-col py-8 mx-auto items-center">
     <div class="pt-14 pb-8">
       <QRCode data="{link}" 
         downloadUrlFileFormat="png"
         dispatchDownloadUrl
-        on:downloadUrlGenerated={(event) => handleDownloadUrlGenerated(event.detail.url)}  
+        on:downloadUrlGenerated={(event) => handleDownloadUrlGenerated(event.detail.url)} 
+        on:qrCodeGenerationFailed={handleQrCodeGenerationFailed}
       />
     </div>
     <!-- card -->
-    <div class=" card bg-base-100 shadow-2xl items-center">
-      <div class="w-full md:w-2/3 flex flex-col mb-16 items-center text-center">
-        <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium">Here is your code for:</h1>
+    <Card.Root>
+      <Card.Header>
+        <Card.Title>Generated QR Code for:</Card.Title>
+      </Card.Header>
+      <Card.Content>
         <p class="mb-8 leading-relaxed">{link}</p>
+      </Card.Content>
+      <Card.Footer>
         <div class="flex w-full justify-center items-end">
           {#if downloadUrl}
-            <a href={downloadUrl} download="QR-code-filename.png" target="_blank" class="btn btn-primary">Download QR Code</a>
+            <a href={downloadUrl} download="QR-code-filename.png" target="_blank" class={buttonVariants({ variant: "outline" })}>Download QR Code</a>
           {/if}
           <div class="px-2">
-            <button on:click={() => goto('/')} class="btn btn-primary">Go Back</button>
+            <!-- <button on:click={() => goto('/')} class="text-white">Go Back</button> -->
+            <Button on:click={() => goto('/')} class="text-white">Go Back</Button>
           </div>
         </div>
-      </div>
-    </div>
+      </Card.Footer>
+    </Card.Root>
   </div>
 </section>
 

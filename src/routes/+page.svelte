@@ -1,57 +1,91 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import main_hero from '$lib/assets/main_hero.svg'
- // import { invoke } from "@tauri-apps/api/core";
 
-  let name = "";
-  let greetMsg = "";
-  let data:string = "";
+  import { type SuperValidated, type Infer, superForm} from "sveltekit-superforms";
+  import SuperDebug from "sveltekit-superforms";
+  import { zodClient } from 'sveltekit-superforms/adapters';
+  import { urlSchema, type UrlSchema } from '$lib/schema';
+  
+  import { Input } from "$lib/components/ui/input";
+  import * as Form from "$lib/components/ui/form";
+  import { toast } from "svelte-sonner";
+  import * as Card from "$lib/components/ui/card";
 
-  // async function greet() {
-  //   // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-  //   greetMsg = await invoke("greet", { name });
-  // }
+  export let data:  SuperValidated<Infer<UrlSchema>>;
+  
+
+  const form = superForm(data, {
+		validators: zodClient(urlSchema),
+    SPA: true,
+    onUpdate: ({ form }) => {
+
+      if (form.valid) {
+
+        sendData()
+
+      } else {
+
+        toast.error("Something went wrong", {
+          description: "Please be sure to fill in all required fields",
+        });
+
+      }
+    }
+	});
+
+	const { form: formData, enhance } = form;
+
 
   function sendData() {
-    goto(`/generated?data=${data}`);
+    toast.success("Generating QR Code", {
+      description: "Please be patient",
+    });
+    //wait 3 seconds
+    setTimeout(() => {
+      console.log($formData.url);
+    }, 3000);
+  
+    goto(`/generated?url=${$formData.url}`);
   }
 
 </script>
 
-<!-- <div>
-  <p>Click on the Tauri, Vite, and SvelteKit logos to learn more.</p>
-  <form class="row" on:submit|preventDefault={greet}>
-    <input id="greet-input" placeholder="Enter a name..." bind:value={name} />
-    <button type="submit" class="btn btn-primary">Greet</button>
-  </form>
-  <p class="text-3xl font-bold underline">{greetMsg}</p>
+<!-- <div class="pb-4">
+  <SuperDebug data={$formData} />
 </div> -->
 
-<section>
-  <div class="container mx-auto flex px-5 py-2 items-center justify-center flex-col">
-    <img class="lg:w-2/6 md:w-3/6 w-5/6 mb-4 object-cover object-center rounded" alt="hero" src="{main_hero}">
-    <!-- card -->
-    <div class=" card bg-base-100 shadow-2xl items-center w-full">
-      <div class="w-full md:w-2/3 flex flex-col mb-16 items-center text-center">
-        <h1 class="title-font sm:text-4xl text-3xl mb-4 font-medium">Welcome to QuickQR</h1>
-        <p class="mb-8 leading-relaxed">I got tired of having to use a website each time i wanted to do this.</p>
-        <div>
-          
-            <div class="flex justify-center pb-2">
-              <label for="hero-field" class="leading-7 text-center text-sm text-gray-600">write or paste your link below</label>
-            </div>
-            <div class="flex justify-center bg-slate-500 px-2">
-              <textarea class="textarea textarea-accent textarea-lg w-full max-w-xs" bind:value={data}></textarea>
-            </div>
-  
-          <div class="flex justify-center py-4">
-            <button class="inline-flexe btn primary text-lg" on:click={sendData}>Generate QR Code</button>
-          </div>
-        </div>
-        <div class=" card bg-base-100 shadow-2xl items-center">
-        <p class="text-sm mt-2 mb-8 w-full text-gray-600 px-2">For now we can only do one qr code at a time. other features well come later</p>
-        </div>
-      </div>
+<section class="flex items-center justify-center h-screen text-center w-full">
+  <div class="container flex flex-col py-8 mx-auto items-center">
+
+    <!-- CTA portion -->
+    <div class="lg:w-3/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
+      <h1 class="title-font text-7xl italic text-white">QuickQR</h1>
+      <p class="leading-relaxed text-xl mt-4 text-white">enter your link and generate a qr code in seconds!</p>
+      <br/>
+      <!-- formsnaps -->
+       <Card.Root>
+        <Card.Header>
+          <Card.Title>Settings</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <form method="POST" use:enhance>
+            <Form.Field {form} name="url">
+             <Form.Control let:attrs>
+                <Form.Label>URL</Form.Label>
+                <Input {...attrs} bind:value={$formData.url} placeholder="https://example.com" />
+             </Form.Control>
+             <Form.Description>enter the url you would like to convert to qr code</Form.Description>
+             <Form.FieldErrors />
+            </Form.Field>
+            <Form.Button>Generate QR CODE</Form.Button>
+           </form>
+        </Card.Content>
+        <Card.Footer>
+          <p class="text-white text-sm"> more features coming soon</p>
+        </Card.Footer>
+       </Card.Root>
+      
     </div>
   </div>
 </section>
+
