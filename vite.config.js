@@ -3,7 +3,7 @@ import { sveltekit } from "@sveltejs/kit/vite";
 
 // @ts-expect-error process is a nodejs global
 const host = process.env.TAURI_DEV_HOST;
-//const host = 'http://127.0.0.1:1420';
+
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
@@ -15,14 +15,14 @@ export default defineConfig(async () => ({
   clearScreen: false,
   // 2. tauri expects a fixed port, fail if that port is not available
   server: {
+    host: host || false,
     port: 1420,
     strictPort: true,
-    host: host || false,
     hmr: host
       ? {
           protocol: "ws",
-          host,
-          port: 1421,
+          host: host,
+          port: 1430,
         }
       : undefined,
     watch: {

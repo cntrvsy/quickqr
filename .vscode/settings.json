@@ -1,6 +1,7 @@
 {
   "svelte.enable-ts-plugin": true,
   "cSpell.words": [
+    "Bootstrapper",
     "castlenine",
     "daisyui",
     "fallbackpage",
