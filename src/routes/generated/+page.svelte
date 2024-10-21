@@ -1,5 +1,6 @@
 <script lang="ts">
   import QRCode from '@castlenine/svelte-qrcode';
+  import logo from '$lib/assets/kbs-svg.svg';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { buttonVariants } from "$lib/components/ui/button";
@@ -31,8 +32,11 @@
   <div class="container flex flex-col py-8 mx-auto items-center">
     <div class="pt-14 pb-8">
       <QRCode data="{link}" 
+        errorCorrectionLevel="Q"
         downloadUrlFileFormat="png"
         dispatchDownloadUrl
+        logoPath="{logo}"
+        
         on:downloadUrlGenerated={(event) => handleDownloadUrlGenerated(event.detail.url)} 
         on:qrCodeGenerationFailed={handleQrCodeGenerationFailed}
       />

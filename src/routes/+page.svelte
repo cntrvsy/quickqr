@@ -42,10 +42,10 @@
     });
     //wait 3 seconds
     setTimeout(() => {
-      console.log($formData.url);
+      console.log($formData.string);
     }, 3000);
   
-    goto(`/generated?url=${$formData.url}`);
+    goto(`/generated?url=${$formData.string}`);
   }
 
 </script>
@@ -69,22 +69,23 @@
         </Card.Header>
         <Card.Content>
           <form method="POST" use:enhance>
-            <Form.Field {form} name="url">
-             <Form.Control let:attrs>
-                <Form.Label>URL</Form.Label>
-                <Input {...attrs} bind:value={$formData.url} placeholder="https://example.com" />
-             </Form.Control>
-             <Form.Description>enter the url you would like to convert to qr code</Form.Description>
-             <Form.FieldErrors />
+           <!-- URL -->
+            <Form.Field {form} name="string">
+              <Form.Control let:attrs>
+                  <Form.Label>URL</Form.Label>
+                  <Input {...attrs} bind:value={$formData.string} placeholder="https://example.com" />
+              </Form.Control>
+              <Form.Description>be sure to enter a valid URL or text</Form.Description>
+              <Form.FieldErrors />
             </Form.Field>
+            
             <Form.Button>Generate QR CODE</Form.Button>
            </form>
         </Card.Content>
         <Card.Footer>
           <p class="text-white text-sm"> more features coming soon</p>
         </Card.Footer>
-       </Card.Root>
-      
+      </Card.Root>
     </div>
   </div>
 </section>
