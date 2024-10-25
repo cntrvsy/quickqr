@@ -36,7 +36,7 @@
         downloadUrlFileFormat="png"
         dispatchDownloadUrl
         logoPath="{logo}"
-        
+        logoSize={25}
         on:downloadUrlGenerated={(event) => handleDownloadUrlGenerated(event.detail.url)} 
         on:qrCodeGenerationFailed={handleQrCodeGenerationFailed}
       />
