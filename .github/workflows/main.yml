@@ -3,7 +3,8 @@ on:
   push:
     tags:
       - 'v*'
-    branches: '*'
+    branches:
+      - main
   workflow_dispatch:
 
 env:
