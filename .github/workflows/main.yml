@@ -1,6 +1,5 @@
 name: "publish"
 
-# This will trigger the action on each push to the `main` branch.
 on:
   push:
     branches:
@@ -39,14 +38,37 @@ jobs:
       - name: install frontend dependencies
         run: npm install
 
-      - uses: tauri-apps/tauri-action@v0
+      - name: Build Tauri application
+        run: npm run tauri build
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          tagName: QuickQR-v__VERSION__ # the action automatically replaces __VERSION__ with the app version
-          releaseName: "v__VERSION__"
-          releaseBody: "See the assets to download this version and install."
-          releaseDraft: false
+          tag_name: QuickQR-v__VERSION__
+          release_name: "v__VERSION__"
+          body: "See the assets to download this version and install."
+          draft: false
           prerelease: false
+
+      - name: Upload .exe Installer
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./src-tauri/target/release/bundle/msi/YourAppInstaller.msi
+          asset_name: YourAppInstaller.msi
+          asset_content_type: application/vnd.ms-msi
+
+      - name: Upload .msi Installer
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./src-tauri/target/release/bundle/msi/YourAppInstaller.msi
+          asset_name: YourAppInstaller.msi
+          asset_content_type: application/vnd.ms-msi
