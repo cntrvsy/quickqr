@@ -15,8 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - platform: "windows-latest" # Only Windows platform
-            args: ""
+          - platform: "windows-latest"
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -59,9 +58,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src-tauri/target/release/bundle/msi/YourAppInstaller.msi
-          asset_name: YourAppInstaller.msi
-          asset_content_type: application/vnd.ms-msi
+          asset_path: ./src-tauri/target/release/bundle/nsis/*.exe
+          asset_name: installer.exe
+          asset_content_type: application/octet-stream
 
       - name: Upload .msi Installer
         uses: actions/upload-release-asset@v1
@@ -69,6 +68,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src-tauri/target/release/bundle/msi/YourAppInstaller.msi
-          asset_name: YourAppInstaller.msi
+          asset_path: ./src-tauri/target/release/bundle/msi/*.msi
+          asset_name: installer.msi
           asset_content_type: application/vnd.ms-msi
