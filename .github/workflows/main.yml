@@ -1,32 +1,46 @@
-name: "publish"
-
+name: Publish Release
 on:
   push:
     branches:
-      - main
+      -main
     tags:
-      - "v*"
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  APP_NAME: "QUICK QR"
 
 jobs:
-  publish-tauri:
-    permissions:
-      contents: write
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - platform: "windows-latest"
-
-    runs-on: ${{ matrix.platform }}
+  changelog:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: setup node
+      - name: Build changelog
+        id: build_changelog
+        run: |
+          # NOTE: if commits subjects are standardized, you can filter the git log based on feat: and fix:
+          # and then replace "feat:" with "New: " and "fix:" with "Fixed "
+          # when AI gets good, we can also summarized commits into a bullet point list
+          PREV_TAG=$(git tag --list v* | tail -n2 | head -n1)
+          echo "changelog=$(git log $PREV_TAG...${{ github.ref_name }} --pretty=format:"- %s")" >> $GITHUB_OUTPUT
+    outputs:
+      changelog: ${{ steps.build_changelog.outputs.changelog }}
+
+  release:
+    runs-on: windows-latest
+    needs: [changelog]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 23
 
-      - name: install Rust stable
+      - name: Install rust stable
         uses: dtolnay/rust-toolchain@stable
 
       - name: Rust cache
@@ -34,22 +48,24 @@ jobs:
         with:
           workspaces: './src-tauri -> target'
 
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: npm install
 
-      - name: Build Tauri application
-        run: npm run tauri build
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
         env:
+          CI: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          tag_name: QuickQR-v__VERSION__
-          release_name: "v__VERSION__"
-          body: "See the assets to download this version and install."
-          draft: false
+          # tauri-action replaces __VERSION__ with the app version
+          tagName: ${{ github.ref_name }}
+          releaseName: "${{ env.APP_NAME }} v__VERSION__"
+          releaseBody: |
+            ${{needs.changelog.outputs.changelog}}
+            See the assets to download this version and install.
+          releaseDraft: true
           prerelease: false
 
       - name: Upload .exe Installer
