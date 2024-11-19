@@ -1,14 +1,15 @@
 name: Publish Release
+
 on:
   push:
-    branches:
-      -main
+    branches: 
+      - main
     tags:
       - 'v*'
   workflow_dispatch:
 
 env:
-  APP_NAME: "QUICK QR"
+  APP_NAME: "QUICKQR"
 
 jobs:
   changelog:
@@ -20,29 +21,31 @@ jobs:
       - name: Build changelog
         id: build_changelog
         run: |
-          # NOTE: if commits subjects are standardized, you can filter the git log based on feat: and fix:
-          # and then replace "feat:" with "New: " and "fix:" with "Fixed "
-          # when AI gets good, we can also summarized commits into a bullet point list
           PREV_TAG=$(git tag --list v* | tail -n2 | head -n1)
           echo "changelog=$(git log $PREV_TAG...${{ github.ref_name }} --pretty=format:"- %s")" >> $GITHUB_OUTPUT
     outputs:
       changelog: ${{ steps.build_changelog.outputs.changelog }}
 
   release:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest]
+    runs-on: ${{ matrix.platform }}
     needs: [changelog]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: lts/*
+          cache: 'npm'
 
-      - name: Install rust stable
+      - name: install Rust stable
         uses: dtolnay/rust-toolchain@stable
-
+  
       - name: Rust cache
         uses: swatinem/rust-cache@v2
         with:
@@ -53,37 +56,26 @@ jobs:
 
       - name: Build Tauri app
         uses: tauri-apps/tauri-action@v0
+        if: ${{ github.ref_type == 'tag' }}
         env:
           CI: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
           TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         with:
-          # tauri-action replaces __VERSION__ with the app version
           tagName: ${{ github.ref_name }}
           releaseName: "${{ env.APP_NAME }} v__VERSION__"
           releaseBody: |
-            ${{needs.changelog.outputs.changelog}}
+            ${{ needs.changelog.outputs.changelog }}
             See the assets to download this version and install.
           releaseDraft: true
           prerelease: false
 
-      - name: Upload .exe Installer
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Windows Installers
+        if: matrix.platform == 'windows-latest'
+        uses: actions/upload-artifact@v4
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src-tauri/target/release/bundle/nsis/*.exe
-          asset_name: installer.exe
-          asset_content_type: application/octet-stream
-
-      - name: Upload .msi Installer
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./src-tauri/target/release/bundle/msi/*.msi
-          asset_name: installer.msi
-          asset_content_type: application/vnd.ms-msi
+          name: 'Windows Installers'
+          path: |
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/msi/*.msi
