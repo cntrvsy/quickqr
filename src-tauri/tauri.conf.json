@@ -30,7 +30,7 @@
       }
     },
     "android": {
-      "minSdkVersion": 26
+      "minSdkVersion": 24
     },
     "icon": [
       "icons/32x32.png",
