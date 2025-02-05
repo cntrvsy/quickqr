@@ -15,3 +15,8 @@ export let data
 	<slot />
 </CustomPageTransition>
 
+<style>
+	:global(body){
+		font-family: 'Do Hyeon', sans-serif;
+	}
+</style>

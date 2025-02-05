@@ -1,5 +1,6 @@
-@import "tailwindcss";
 @config "../tailwind.config.js";
+@import "tailwindcss";
+
 
 @layer base {
   :root {
@@ -64,11 +65,17 @@
   }
 }
 
-@layer base {
-  * {
-    @apply border-border;
+@layer utilities {
+  .border-border {
+    border-color: var(--border);
   }
+}
+
+@layer base {
   body {
     @apply bg-background text-foreground;
+  }
+  * {
+    @apply border-border;
   }
 }
