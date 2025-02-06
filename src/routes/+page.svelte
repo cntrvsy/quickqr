@@ -1,6 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 
+  import { Button } from "$lib/components/ui/button/index.js";
+
   import { type SuperValidated, type Infer, superForm} from "sveltekit-superforms";
   import SuperDebug from "sveltekit-superforms";
   import { zodClient } from 'sveltekit-superforms/adapters';
@@ -54,39 +56,5 @@
   <SuperDebug data={$formData} />
 </div> -->
 
-<section class="flex items-center justify-center h-screen text-center w-full">
-  <div class="container flex flex-col py-8 mx-auto items-center">
 
-    <!-- CTA portion -->
-    <div class="lg:w-3/5 md:w-1/2 md:pr-16 lg:pr-0 pr-0">
-      <h1 class="title-font text-7xl italic text-white">QuickQR</h1>
-      <p class="leading-relaxed text-xl mt-4 text-white">enter your link and generate a qr code in seconds!</p>
-      <br/>
-      <!-- formsnaps -->
-       <Card.Root>
-        <Card.Header>
-          <Card.Title>Settings</Card.Title>
-        </Card.Header>
-        <Card.Content>
-          <form method="POST" use:enhance>
-           <!-- URL -->
-            <Form.Field {form} name="string">
-              <Form.Control let:attrs>
-                  <Form.Label>URL</Form.Label>
-                  <Input {...attrs} bind:value={$formData.string} placeholder="https://example.com" />
-              </Form.Control>
-              <Form.Description>be sure to enter a valid URL or text</Form.Description>
-              <Form.FieldErrors />
-            </Form.Field>
-            
-            <Form.Button>Generate QR CODE</Form.Button>
-           </form>
-        </Card.Content>
-        <Card.Footer>
-          <p class="text-white text-sm"> more features coming soon</p>
-        </Card.Footer>
-      </Card.Root>
-    </div>
-  </div>
-</section>
-
+<Button>Click me</Button>

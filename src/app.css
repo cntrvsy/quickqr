@@ -65,9 +65,7 @@
 }
 
 @utility border-border {
-  .border-border {
-    border-color: var(--border);
-  }
+  border-color: var(--border);
 }
 
 @layer base {
