@@ -2,33 +2,33 @@ import { defineConfig } from "vite";
 import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 
-// @ts-expect-error process is a nodejs global
-const host = process.env.TAURI_DEV_HOST;
-//const host = '0.0.0.0'
+// Determine the host dynamically based on the platform
 
+// @ts-ignore
+const tauriPlatform = process.env.TAURI_PLATFORM;
+
+// @ts-expect-error process is a nodejs global
+const host = tauriPlatform === "android" || tauriPlatform === "ios" ? "0.0.0.0" : process.env.TAURI_DEV_HOST || false;
 
 // https://vitejs.dev/config/
 export default defineConfig(async () => ({
-  plugins: [sveltekit(), tailwindcss(),],
+  plugins: [sveltekit(), tailwindcss()],
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
-  //
-  // 1. prevent vite from obscuring rust errors
   clearScreen: false,
-  // 2. tauri expects a fixed port, fail if that port is not available
+
   server: {
-    host: host || false,
+    host,
     port: 1420,
     strictPort: true,
     hmr: host
       ? {
           protocol: "ws",
-          host: host,
+          host,
           port: 1430,
         }
       : undefined,
     watch: {
-      // 3. tell vite to ignore watching `src-tauri`
       ignored: ["**/src-tauri/**"],
     },
   },
