@@ -56,7 +56,7 @@
           {/if}
           <div class="px-2">
             <!-- <button on:click={() => goto('/')} class="text-white">Go Back</button> -->
-            <Button on:click={() => goto('/')} class="text-white">Go Back</Button>
+            <Button onclick={() => goto('/')} class="text-white">Go Back</Button>
           </div>
         </div>
       </Card.Footer>
