@@ -1,5 +1,14 @@
+@import '@fontsource/libre-baskerville';
+@import '@fontsource/hind';
+
 @import "tailwindcss";
 @config "../tailwind.config.js";
+
+body {
+  font-family: 'Hind', sans-serif;
+  font-family: 'Libre Baskerville', serif;
+}
+
 
 @layer base {
   :root {
