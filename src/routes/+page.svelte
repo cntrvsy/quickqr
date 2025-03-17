@@ -1,6 +1,8 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
 
+  import { Button } from "$lib/components/ui/button/index.js";
+
   import { type SuperValidated, type Infer, superForm} from "sveltekit-superforms";
   import SuperDebug from "sveltekit-superforms";
   import { zodClient } from 'sveltekit-superforms/adapters';
@@ -11,8 +13,8 @@
   import { toast } from "svelte-sonner";
   import * as Card from "$lib/components/ui/card";
 
-  export let data:  SuperValidated<Infer<UrlSchema>>;
   
+  let { data } : {data:  SuperValidated<Infer<UrlSchema>> } = $props();
 
   const form = superForm(data, {
 		validators: zodClient(urlSchema),
@@ -54,6 +56,7 @@
   <SuperDebug data={$formData} />
 </div> -->
 
+
 <section class="flex items-center justify-center h-screen text-center w-full">
   <div class="container flex flex-col py-8 mx-auto items-center">
 
@@ -71,10 +74,12 @@
           <form method="POST" use:enhance>
            <!-- URL -->
             <Form.Field {form} name="string">
-              <Form.Control let:attrs>
+              <Form.Control>
+                {#snippet children({ props })}
                   <Form.Label>URL</Form.Label>
-                  <Input {...attrs} bind:value={$formData.string} placeholder="https://example.com" />
-              </Form.Control>
+                  <Input {...props} bind:value={$formData.string} placeholder="https://example.com" />
+                {/snippet}
+                </Form.Control>
               <Form.Description>be sure to enter a valid URL or text</Form.Description>
               <Form.FieldErrors />
             </Form.Field>
@@ -89,4 +94,3 @@
     </div>
   </div>
 </section>
-

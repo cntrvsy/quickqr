@@ -9,7 +9,11 @@ const config = {
   extensions: ['.svelte'],
   preprocess: vitePreprocess(),
   vitePlugin: {
-		inspector: true,
+		inspector: {
+			toggleKeyCombo: 'alt-x',
+			showToggleButton: 'always',
+			toggleButtonPos: 'bottom-right'
+		}
 	},
   kit: {
     adapter: adapter({
